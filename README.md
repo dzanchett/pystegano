@@ -1,4 +1,4 @@
-# PyStegano - Steganography tools for python
+# PyStegano - Steganography tools for Python
 
 ##  Getting it
 

@@ -4,15 +4,19 @@ setup(
   packages = ['pystegano'],
   version = '0.1',
   license='MIT',
-  description = 'Steganography tools for python',
+  description = 'Steganography tools for Python',
   author = 'Diego Zanchett',
   author_email = 'diego.zanchett@aluno.cefet-rj.br',
   url = 'https://github.com/dzanchett/pystegano',
-  download_url = 'https://github.com/user/reponame/archive/v_01.tar.gz',    # I explain this later on
+  download_url = 'https://github.com/dzanchett/pystegano/archive/v_0.1.tar.gz',    # I explain this later on
   keywords = ['steganography'],
-  install_requires=[            # I get to this in a second
-          'validators',
-          'beautifulsoup4',
+  install_requires=[
+          'scipy',
+          'numpy',
+          'pandas',
+          'scikit-image',
+          'bitarray',
+          'opencv-python',
       ],
   classifiers=[
     'Development Status :: 4 - Beta',
