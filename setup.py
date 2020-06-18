@@ -10,6 +10,7 @@ setup(
   license='MIT',
   description = 'Steganography tools for Python',
   long_description=long_description,
+  long_description_content_type="text/markdown",
   author = 'Diego Zanchett',
   author_email = 'diego.zanchett@aluno.cefet-rj.br',
   url = 'https://github.com/dzanchett/pystegano',
