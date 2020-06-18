@@ -8,7 +8,7 @@ setup(
   author = 'Diego Zanchett',
   author_email = 'diego.zanchett@aluno.cefet-rj.br',
   url = 'https://github.com/dzanchett/pystegano',
-  download_url = 'https://github.com/dzanchett/pystegano/archive/v_0.1.tar.gz',    # I explain this later on
+  download_url = 'https://github.com/dzanchett/pystegano/archive/v_0.1.tar.gz',
   keywords = ['steganography'],
   install_requires=[
           'scipy',
