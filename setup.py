@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 with open("README.md", "r") as fh:
   long_description = fh.read()
@@ -6,14 +6,14 @@ with open("README.md", "r") as fh:
 setup(
   name = 'pystegano',
   packages = ['pystegano'],
-  version = '0.2',
+  version = '0.2.1',
   license='MIT',
   description = 'Steganography tools for Python',
   long_description=long_description,
   author = 'Diego Zanchett',
   author_email = 'diego.zanchett@aluno.cefet-rj.br',
   url = 'https://github.com/dzanchett/pystegano',
-  download_url = 'https://github.com/dzanchett/pystegano/archive/v_0.2.tar.gz',
+  download_url = 'https://github.com/dzanchett/pystegano/archive/v_0.2.1.tar.gz',
   keywords = ['steganography'],
   install_requires=[
           'scipy',
