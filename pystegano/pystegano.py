@@ -5,6 +5,7 @@ import skimage
 import bitarray
 import math
 import cv2
+import random
 from scipy import fftpack
 
 class lsb:
@@ -175,6 +176,262 @@ class lsb_grayscale:
 						bit_message = ""
 					except:
 						raise Exception("Can't decode secret on this image!")
+				elif bit_count >= bit_length:
+					return bitarray.bitarray(bit_message).tobytes().decode('utf-8')
+
+class ssb4_grayscale:
+	"""
+	Steganographic tools based on fourth significant bit (lsb).
+	Thesse methods receive an RGB image and outputs a grayscale image.
+	"""
+
+	def __messageToBits(message):
+		tag = "{:<10}".format(str(len(message)*8))
+		message = tag+message
+		code = bitarray.bitarray()
+		code.frombytes(message.encode('utf-8'))
+		code = "".join(['1' if x == True else '0' for x in code.tolist()])
+		return code
+
+	def __hideMessage(img, message):
+	    vetNormalize = [232, 233, 234, 235, 236, 237, 238, 239, 248, 249, 250, 251, 252, 253, 254, 255]
+
+	    shape = img.shape
+	    img = img.flatten()
+	    code = list(message)
+	    code_len = len(code)
+	    for i,x in enumerate(img):
+	        if i <code_len:
+	            valorPixel = x
+	            tempDiff = 256
+	            zListTemp = list('{0:08b}'.format(x))
+	            zbits = zListTemp[:4]+[code[i]]+zListTemp[5:]
+	            img[i] = int("".join(zbits), 2)
+
+	            for j in vetNormalize:
+	                if abs((img[i] & j)-img[i]) < tempDiff:
+	                    valorPixel = (img[i] & j)
+	                    tempDiff = abs((img[i] & j)-img[i])
+
+	            img[i] = valorPixel
+	        else:
+	            return img.reshape(shape)
+	    return img.reshape(shape)
+
+	def __toGrayscale(imageA):
+	    r = imageA[:,:,0]
+	    g = imageA[:,:,1]
+	    b = imageA[:,:,2]
+
+	    shapeImage = imageA.shape;
+	    retImage = np.zeros((shapeImage[0], shapeImage[1]))
+
+	    for i in range(shapeImage[0]):
+	        for j in range(shapeImage[1]):
+	            retImage[i][j] = int(0.2126*r[i][j] + 0.7152*g[i][j] + 0.0722*b[i][j])
+
+	    return retImage.astype("uint8")
+
+	def encode(cover_image, secret_message):
+		"""
+		Stores a secret_message (string) into a cover_image (image) using ssb-4 steganography.
+		This method receive an RGB image and outputs a grayscale image.
+		"""
+
+		cover_image = ssb4_grayscale.__toGrayscale(cover_image)
+
+		image_height  = cover_image.shape[0]
+		image_width   = cover_image.shape[1]
+
+		image_size_bytes = image_height * image_width
+		image_size_bits  = image_size_bytes * 8
+		image_size_kbytes = image_size_bytes / 1024
+
+		hide_size_bits  = image_size_bytes
+		hide_size_kbytes = (hide_size_bits / 8) / 1024
+
+		message_size_kbytes = len(secret_message)/8000
+
+		if message_size_kbytes > hide_size_kbytes:
+			raise Exception('Message too big!')
+		
+		secret_message_bits = ssb4_grayscale.__messageToBits(secret_message)
+
+		image_with_message = ssb4_grayscale.__hideMessage(cover_image, secret_message_bits)
+
+		return image_with_message
+
+	def decode(cover_image):
+		"""
+		Retrives a secret_message (string) from an image (image) using ssb-4 steganography.
+		This method receive an RGB image and outputs a grayscale image.
+		"""
+
+		bit_message = ""
+		bit_count = 0
+		bit_length = 200
+		for i,x in enumerate(cover_image):
+			for j,y in enumerate(x):
+				zbits = '{0:08b}'.format(y)
+				bit_message += zbits[4]
+				bit_count += 1
+				if bit_count == 80:
+					try:
+						decoded_tag = bitarray.bitarray(bit_message).tobytes().decode('utf-8')
+						bit_length = int(decoded_tag)+80
+						bit_message = ""
+					except:
+						print("Image does not have decode tag. Image is either not encoded or, at least, not encoded in a way this decoder recognizes")
+						return
+				elif bit_count >= bit_length:
+					return bitarray.bitarray(bit_message).tobytes().decode('utf-8')
+
+class ssbn_grayscale:
+	"""
+	Steganographic tools based on random significant bit (lsb).
+	Thesse methods receive an RGB image and outputs a grayscale image.
+	"""
+
+	def __messageToBits(message):
+		tag = "{:<10}".format(str(len(message)*8))
+		message = tag+message
+		code = bitarray.bitarray()
+		code.frombytes(message.encode('utf-8'))
+		code = "".join(['1' if x == True else '0' for x in code.tolist()])
+		return code
+
+	def __hideMessage(img, message):
+	    vetNormalize1 = [225, 227, 229, 231, 233, 235, 237, 239, 241, 243, 245, 247, 249, 251, 253, 255]
+	    vetNormalize2 = [226, 227, 230, 231, 234, 235, 238, 239, 242, 243, 246, 247, 250, 251, 254, 255]
+	    vetNormalize3 = [228, 229, 230, 231, 236, 237, 238, 239, 244, 245, 246, 247, 252, 253, 254, 255]
+	    vetNormalize4 = [232, 233, 234, 235, 236, 237, 238, 239, 248, 249, 250, 251, 252, 253, 254, 255]
+
+	    shape = img.shape
+	    img = img.flatten()
+	    code = list(message)
+	    code_len = len(code)
+	    password = [random.randint(0, 3) for i in range(code_len)]
+
+	    for i,x in enumerate(img):
+	        if i <code_len:
+	            valorPixel = x
+	            tempDiff = 256
+	            zListTemp = list('{0:08b}'.format(x))
+
+	            if password[i] == 0:
+	                zbits = zListTemp[:7]+[code[i]]
+	                img[i] = int("".join(zbits), 2)
+
+	                for j in vetNormalize1:
+	                    if abs((img[i] & j)-img[i]) < tempDiff:
+	                        valorPixel = (img[i] & j)
+	                        tempDiff = abs((img[i] & j)-img[i])
+	            elif password[i] == 1:
+	                zbits = zListTemp[:6]+[code[i]]+zListTemp[7:]
+	                img[i] = int("".join(zbits), 2)
+
+	                for j in vetNormalize2:
+	                    if abs((img[i] & j)-img[i]) < tempDiff:
+	                        valorPixel = (img[i] & j)
+	                        tempDiff = abs((img[i] & j)-img[i])
+	            elif password[i] == 2:
+	                zbits = zListTemp[:5]+[code[i]]+zListTemp[6:]
+	                img[i] = int("".join(zbits), 2)
+
+	                for j in vetNormalize3:
+	                    if abs((img[i] & j)-img[i]) < tempDiff:
+	                        valorPixel = (img[i] & j)
+	                        tempDiff = abs((img[i] & j)-img[i])
+	            elif password[i] == 3:
+	                zbits = zListTemp[:4]+[code[i]]+zListTemp[5:]
+	                img[i] = int("".join(zbits), 2)
+
+	                for j in vetNormalize4:
+	                    if abs((img[i] & j)-img[i]) < tempDiff:
+	                        valorPixel = (img[i] & j)
+	                        tempDiff = abs((img[i] & j)-img[i])
+
+	            img[i] = valorPixel
+	        else:
+	            return img.reshape(shape), password
+	    return img.reshape(shape), password
+
+	def __toGrayscale(imageA):
+	    r = imageA[:,:,0]
+	    g = imageA[:,:,1]
+	    b = imageA[:,:,2]
+
+	    shapeImage = imageA.shape;
+	    retImage = np.zeros((shapeImage[0], shapeImage[1]))
+
+	    for i in range(shapeImage[0]):
+	        for j in range(shapeImage[1]):
+	            retImage[i][j] = int(0.2126*r[i][j] + 0.7152*g[i][j] + 0.0722*b[i][j])
+
+	    return retImage.astype("uint8")
+
+	def encode(cover_image, secret_message):
+		"""
+		Stores a secret_message (string) into a cover_image (image) using ssb-n steganography.
+		This method receive an RGB image and outputs a grayscale image and the password.
+		"""
+
+		cover_image = ssbn_grayscale.__toGrayscale(cover_image)
+
+		image_height  = cover_image.shape[0]
+		image_width   = cover_image.shape[1]
+
+		image_size_bytes = image_height * image_width
+		image_size_bits  = image_size_bytes * 8
+		image_size_kbytes = image_size_bytes / 1024
+
+		hide_size_bits  = image_size_bytes
+		hide_size_kbytes = (hide_size_bits / 8) / 1024
+
+		message_size_kbytes = len(secret_message)/8000
+
+		if message_size_kbytes > hide_size_kbytes:
+			raise Exception('Message too big!')
+		
+		secret_message_bits = ssbn_grayscale.__messageToBits(secret_message)
+
+		image_with_message, password = ssbn_grayscale.__hideMessage(cover_image, secret_message_bits)
+
+		return image_with_message, password
+
+	def decode(cover_image, password):
+		"""
+		Retrives a secret_message (string) from an image (image) using ssb-n steganography.
+		This method receive an RGB image and outputs a grayscale image.
+		"""
+
+		bit_message = ""
+		bit_count = 0
+		bit_length = 200
+		password_counter = 0
+		for i,x in enumerate(cover_image):
+			for j,y in enumerate(x):
+				zbits = '{0:08b}'.format(y)
+
+				if password[password_counter] == 0:
+					bit_message += zbits[7]
+				elif password[password_counter] == 1:
+					bit_message += zbits[6]
+				elif password[password_counter] == 2:
+					bit_message += zbits[5]
+				elif password[password_counter] == 3:
+					bit_message += zbits[4]
+
+				password_counter += 1
+				bit_count += 1
+				if bit_count == 80:
+					try:
+						decoded_tag = bitarray.bitarray(bit_message).tobytes().decode('utf-8')
+						bit_length = int(decoded_tag)+80
+						bit_message = ""
+					except:
+						print("Image does not have decode tag. Image is either not encoded or, at least, not encoded in a way this decoder recognizes")
+						return
 				elif bit_count >= bit_length:
 					return bitarray.bitarray(bit_message).tobytes().decode('utf-8')
 
