@@ -26,6 +26,14 @@ help(pystegano.lsb_grayscale)
 ```
 
 ```Python
+help(pystegano.ssb4_grayscale)
+```
+
+```Python
+help(pystegano.ssbn_grayscale)
+```
+
+```Python
 help(pystegano.dct)
 ```
 

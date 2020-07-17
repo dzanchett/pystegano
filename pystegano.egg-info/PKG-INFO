@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: pystegano
-Version: 0.2.1
+Version: 0.3
 Summary: Steganography tools for Python
 Home-page: https://github.com/dzanchett/pystegano
 Author: Diego Zanchett
 Author-email: diego.zanchett@aluno.cefet-rj.br
 License: MIT
-Download-URL: https://github.com/dzanchett/pystegano/archive/v_0.2.1.tar.gz
+Download-URL: https://github.com/dzanchett/pystegano/archive/v_0.3.tar.gz
 Description: # PyStegano - Steganography tools for Python
         
         ##  Getting it
