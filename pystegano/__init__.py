@@ -1,1 +1,1 @@
-from pystegano.pystegano import lsb, lsb_grayscale, dct, fft
+from pystegano.pystegano import lsb, lsb_grayscale, ssb4_grayscale, ssbn_grayscale, dct, fft
